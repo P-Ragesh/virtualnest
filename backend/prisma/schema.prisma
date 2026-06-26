@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int          @id @default(autoincrement())
+  username     String       @unique
+  email        String       @unique
+  passwordHash String
+  role         String       @default("employee") // admin | hr | employee
+  createdAt    DateTime     @default(now())
+  tokens       RefreshToken[]
+  notifications Notification[]
+  employee     Employee?
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Employee {
+  id               Int          @id @default(autoincrement())
+  empId            String       @unique // EMP-001
+  userId           Int?         @unique
+  user             User?        @relation(fields: [userId], references: [id])
+  firstName        String
+  lastName         String
+  email            String       @unique
+  phone            String?
+  gender           String?
+  department       String
+  designation      String
+  joinDate         DateTime
+  salary           Float
+  status           String       @default("active") // active | inactive | terminated
+  photo            String?      // Stored as base64 string
+  address          String?
+  emergencyContact String?
+  bankDetails      String?
+  reportingManager String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  payrolls         Payroll[]
+  leaves           Leave[]
+  attendances      Attendance[]
+  tasks            Task[]
+  projects         ProjectEmployee[]
+}
+
+model Payroll {
+  id           Int      @id @default(autoincrement())
+  employeeId   Int
+  employee     Employee @relation(fields: [employeeId], references: [id])
+  month        Int
+  year         Int
+  basicSalary  Float
+  hra          Float    @default(0)
+  allowances   Float    @default(0)
+  deductions   Float    @default(0)
+  netSalary    Float
+  status       String   @default("pending") // pending | approved | paid
+  paidAt       DateTime?
+  createdAt    DateTime @default(now())
+}
+
+model Leave {
+  id          Int      @id @default(autoincrement())
+  employeeId  Int
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  leaveType   String   // sick | casual | earned | wfh
+  fromDate    DateTime
+  toDate      DateTime
+  reason      String?
+  status      String   @default("pending") // pending | approved | rejected
+  appliedAt   DateTime @default(now())
+}
+
+model Attendance {
+  id         Int      @id @default(autoincrement())
+  employeeId Int
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  date       DateTime
+  checkIn    DateTime?
+  checkOut   DateTime?
+  status     String   @default("present") // present | absent | late | wfh
+  createdAt  DateTime @default(now())
+}
+
+model Project {
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String?
+  startDate     DateTime?
+  endDate       DateTime?
+  status        String   @default("active") // active | completed | on_hold | cancelled
+  priority      String   @default("medium") // low | medium | high | critical
+  employees     ProjectEmployee[]
+  tasks         Task[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ProjectEmployee {
+  id            Int      @id @default(autoincrement())
+  projectId     Int
+  project       Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  employeeId    Int
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  role          String   @default("member") // member | lead | manager
+  status        String   @default("active") // active | completed
+  assignedAt    DateTime @default(now())
+  completedAt   DateTime?
+  createdAt     DateTime @default(now())
+
+  @@unique([projectId, employeeId])
+}
+
+model Task {
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String?
+  priority      String   @default("medium") // low | medium | high | critical
+  status        String   @default("pending") // pending | in_progress | review | completed | overdue
+  startDate     DateTime?
+  dueDate       DateTime
+  projectId     Int?
+  project       Project?   @relation(fields: [projectId], references: [id])
+  assignedTo    Int      // Employee.id
+  assignedBy    Int      // User.id
+  attachments   String?  // JSON string
+  progressNotes String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  completedAt   DateTime?
+
+  employee      Employee @relation(fields: [assignedTo], references: [id])
+}
+
+model Meeting {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  location    String?  // URL (Zoom/Meet) or physical location
+  participants String?  // JSON string of employee IDs
+  createdBy   Int      // User.id
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  date        DateTime
+  location    String?
+  isAllDay    Boolean  @default(true)
+  createdBy   Int      // User.id
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Announcement {
+  id           Int      @id @default(autoincrement())
+  title        String
+  content      String
+  type         String   @default("news") // news | holiday | notice
+  isPinned     Boolean  @default(false)
+  scheduledFor DateTime?
+  createdBy    Int      // User.id
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Setting {
+  id           Int      @id @default(autoincrement())
+  key          String   @unique
+  value        String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Notification {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id])
+  title        String
+  message      String
+  type         String   // leave_approved | leave_rejected | task_assigned | announcement | payroll_processed
+  read         Boolean  @default(false)
+  link         String?  // URL to navigate to when clicked
+  relatedId    Int?     // ID of related item (leave, task, etc.)
+  createdAt    DateTime @default(now())
+}

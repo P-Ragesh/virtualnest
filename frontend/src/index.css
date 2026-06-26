@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  background: linear-gradient(135deg, #C8D5BB 0%, #ffffff 100%);
+  min-height: 100vh;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #94A293; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #536164; }
+
+/* Material Symbols Adjustments */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+  vertical-align: middle;
+}
+
+/* Custom Utilities */
+.card-shadow { box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.08), 0px 2px 4px rgba(0, 0, 0, 0.04); }
+.glass-panel { 
+  background: rgba(255, 255, 255, 0.75); 
+  backdrop-filter: blur(16px); 
+  -webkit-backdrop-filter: blur(16px); 
+  border: 1px solid rgba(255, 255, 255, 0.6); 
+  border-radius: 16px;
+}
+.floating-card { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease; }
+.floating-card:hover { transform: translateY(-4px); box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.06); }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.table-container { box-shadow: 0 0 0 1px rgba(0,0,0,0.05); }
+
+/* Custom select dropdown styling */
+select {
+  background-color: white;
+  color: #3a4446;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23536164'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.5rem 1.5rem;
+}
+
+select option {
+  background-color: white;
+  color: #3a4446;
+  padding: 8px 12px;
+}
+
+/* Webkit browsers (Chrome, Edge, Safari) */
+select::-webkit-select-menu {
+  background-color: white;
+  border-radius: 12px;
+  border: 1px solid #C8D5BB;
+}
+
+/* For Firefox */
+select {
+  scrollbar-color: #94A293 #C8D5BB;
+}
+
+/* Try to override the default blue highlight */
+/* Chrome/Edge ignores background-color on option:checked, so we use linear-gradient trick */
+select option:checked,
+select option:hover,
+select option:active {
+  background: linear-gradient(0deg, #C8D5BB 0%, #C8D5BB 100%) !important;
+  color: #3a4446 !important;
+}
+
+/* Override browser default highlight color */
+::selection {
+  background: #C8D5BB !important;
+  color: #3a4446 !important;
+}
+
+/* For Firefox */
+::-moz-selection {
+  background: #C8D5BB !important;
+  color: #3a4446 !important;
+}
+
+/* Custom input styling */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  border-color: #536164 !important;
+  box-shadow: 0 0 0 2px rgba(83, 97, 100, 0.15) !important;
+  --tw-ring-color: transparent !important;
+}
+
+*:focus-visible {
+  outline: none !important;
+  --tw-ring-color: transparent !important;
+}
+
+button:focus {
+  outline: none !important;
+  border-color: #536164 !important;
+  box-shadow: 0 0 0 2px rgba(83, 97, 100, 0.15) !important;
+}
+
+/* Custom table row hover */
+.employee-row:hover {
+  background-color: rgba(200, 213, 187, 0.3) !important;
+}
+
+/* Custom dropdown fade-in animation */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 0.15s ease-out forwards;
+}
